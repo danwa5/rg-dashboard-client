@@ -35,6 +35,14 @@ type Error struct {
 }
 
 func main() {
+	stocks := os.Args[1:]
+
+	if len(stocks) == 0 {
+		log.Fatalln("Please enter a ticker symbol (e.g. AAPL, AMZN).")
+	}
+
+	symbol := stocks[0]
+
 	authToken, err := getAuthToken()
 	if err != nil {
 		log.Fatalln(err)
@@ -43,7 +51,7 @@ func main() {
 	host := goDotEnvVariable("RG_DASHBOARD_API_HOST")
 
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", host+"/api/v1/quotes/AAPL", nil)
+	req, _ := http.NewRequest("GET", host+"/api/v1/quotes/"+symbol, nil)
 	req.Header.Add("Authorization", authToken)
 	resp, err := client.Do(req)
 
@@ -66,7 +74,7 @@ func main() {
 	}
 
 	if resp.StatusCode == 200 {
-		log.Println("Request for AAPL quote was successful!")
+		log.Println("Request for", symbol, "quote was successful!")
 		j, _ := json.MarshalIndent(jsonResp, "", "    ")
 		fmt.Println(string(j))
 	} else {
